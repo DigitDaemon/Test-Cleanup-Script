@@ -119,5 +119,5 @@ foreach ($App in $Apps){
 Remove-Item $LocalSource
 
 #For testing purposes
-Read-Host "Press Enter to Exit"
+#Read-Host "Press Enter to Exit"
 
