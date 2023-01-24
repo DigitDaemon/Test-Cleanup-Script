@@ -17,7 +17,7 @@ Function Get-Instructions{
 			"`r`nTo use this utility, three seperate files are needed." +
 			"`r`nThe utility executable itself." +
 			"`r`nAnd a .csv file named 'TestCleanupApps.csv'" +
-			"`r`nA .config file named 'FileSOurce.txt'" +
+			"`r`nA .config file named 'FileSource.config'" +
 			"`r`n`-----" +
 			"`r`nThe TestCleanupApps.csv file will serve as a master record of the apps that the program will close and" +
 			"`r`nshould be placed in a central location on the network where anyone has access privilages. The file should" +
@@ -28,7 +28,7 @@ Function Get-Instructions{
 			"`r`n" +
 			"`r`nThis utility will not be able to correctly close an application if the Porcess Name is not correct." +
 			"`r`n-----" +
-			"`r`nThe FileSource.txt file should be placed in the same folder as the executable file and should only contain" +
+			"`r`nThe FileSource.config file should be placed in the same folder as the executable file and should only contain" +
 			"`r`nthe path to the TestCleanupApps.csv file on the network. For example:" +
 			"`r`n" +
 			"`r`n\\School-Server\softwarepush\TestCleanupUtility" +
@@ -37,19 +37,27 @@ Function Get-Instructions{
 			"`r`n-----"
 	Out-File -FilePath .\Instructions.txt -InputObject $Instructions
 	$ExampleConfig = "\\School-Server\softwarepush\TestCleanupUtility"
-	Out-File -FilePath .\EXAMPLE_FileSource.txt -InputObject $ExampleConfig
+	Out-File -FilePath .\EXAMPLE_FileSource.config -InputObject $ExampleConfig
 	$ExampleCleanupAppsCSV = "Teams,05/08/1945,The Teams client in windows"
 	Out-File -FilePath .\EXAMPLE_TestCleanupApps.csv -InputObject $ExampleCleanupAppsCSV
 }
 
-Get-ChildItem -Path $PSScriptRoot
-Write-Host $PSScriptRoot
+#Turn on Debug lines
+$DebugOutput = $false
+
 #Set up some variables
 $SourceFileName = "TestCleanupApps.csv"
-$ConfigFileName = "FileSource.txt"
+$ConfigFileName = "FileSource.config"
+$DataPath = "C:\ProgramData\TestCleanupScript"
 
 #check for config file
-$ConfigFilePath = $PSScriptRoot + "/" + $ConfigFileName
+$ConfigFilePath = $DataPath + "\" + $ConfigFileName
+if ($DebugOutput)
+{
+	Write-Host $ConfigFilePath
+	Read-Host "Press Enter to Continue"
+}
+
 $ConfigPresent = Test-Path -Path $ConfigFilePath
 if (!$ConfigPresent){
 	$ValidChoice = $false
@@ -74,7 +82,15 @@ if (!$ConfigPresent){
 
 #build path to the source file
 $FileSource = Get-Content $ConfigFilePath
+
+if ($DebugOutput) { Write-Host $FileSource }
 $FullSourceFilePath = $FileSource + "\" + $SourceFileName
+
+if ($DebugOutput)
+{
+	Write-Host $FullSourceFilePath
+	Read-Host "Press enter to continue"
+}
 
 #check for source file
 $SourcePresent = Test-Path $FullSourceFilePath
@@ -100,25 +116,29 @@ if (!$SourcePresent){
 }
 
 #Get the source csv file onto the computer
-Copy-Item $FullSourceFilePath $PSScriptRoot
+Copy-Item $FullSourceFilePath -Destination $DataPath
 #Read-Host "Press Enter to Continue"
 
 #Read the source file into the script
-$LocalSource = $PSScriptRoot + "\" + $SourceFileName
-Write-Host "LocalSource: " $LocalSource
+$LocalSource = $DataPath + "\" + $SourceFileName
+
+if ($DebugOutput)
+{
+	Write-Host "LocalSource: " $LocalSource
+	Read-Host "Press Enter to Continue"
+}
+
 $Apps = Import-Csv -Path $LocalSource -Header 'ProcessName', 'DateAdded', 'Description' 
 
 #Time to kill...processes
 foreach ($App in $Apps){
-	Write-Host "App ProcessName: " $App.ProcessName
+	if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
 	$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
 	if ($Target) {
 		Stop-Process -Name $Target.ProcessName -Force
-		Write-Host "Killed " $Target.ProcessName
+		if ($DebugOutput) { Write-Host "Killed " $Target.ProcessName }
 	}
 }
 Remove-Item $LocalSource
 
-#For testing purposes
-#Read-Host "Press Enter to Exit"
-
+if ($DebugOutput) { Read-Host "Press Enter to Exit" }
