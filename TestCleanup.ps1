@@ -28,7 +28,22 @@
 Function Get-Instructions{
 	Write-Host "The TestCleanupUtility instruction will be written to the folder that the utility is currently located in."
 	$Instructions = "Test Cleanup Utility" +
-			"`r`nWritten by Thomas Landry for use and distrubution by the Orange Unified School District" +
+			"`r`nWritten by Thomas Landry for use and distrubution under the GNUv3 License" +
+			"`r`n-----" +
+			"`r`nCopyright (C) 2023 Thomas Landry"+
+			"`r`n"+
+			"`r`nThis program is free software: you can redistribute it and/or modify"+
+			"`r`nit under the terms of the GNU General Public License as published by"+
+			"`r`nthe Free Software Foundation, either version 3 of the License, or"+
+			"`r`n(at your option) any later version."+
+			"`r`n"+
+			"`r`nThis program is distributed in the hope that it will be useful,"+
+			"`r`nbut WITHOUT ANY WARRANTY; without even the implied warranty of"+
+			"`r`nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"+
+			"`r`nGNU General Public License for more details."+
+			"`r`n"+
+			"`r`nYou should have received a copy of the GNU General Public License"+
+			"`r`nalong with this program.  If not, see <http://www.gnu.org/licenses/>."+
 			"`r`n-----" +
 			"`r`nThe purpose of this utility is to automatically close any apps that may interfer with the ability for" +
 			"`r`ntesting browser to run. The goal is to be able to have students simple click on the utility before taking" +
