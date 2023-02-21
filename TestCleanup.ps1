@@ -1,3 +1,23 @@
+#Test Cleanup Script 
+#A configurable solution to shut down applications that would interfere withtesting software. 
+
+#----------------------------------<LICENSE>--------------------------------#
+#   Copyright (C) 2023 Thomas Landry                                        #
+#                                                                           #
+#   This program is free software: you can redistribute it and/or modify    #
+#   it under the terms of the GNU General Public License as published by    #
+#   the Free Software Foundation, either version 3 of the License, or       #
+#   (at your option) any later version.                                     #
+#                                                                           #
+#   This program is distributed in the hope that it will be useful,         #
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of          #
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #
+#   GNU General Public License for more details.                            #
+#                                                                           #
+#   You should have received a copy of the GNU General Public License       #
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.   #
+#---------------------------------------------------------------------------#
+
 #Problem: Running apps stopping test browsers from running
 #Propossed Solution: Get all running apps on computer and then close apps that are known
 #to cause issues.
@@ -28,7 +48,7 @@ Function Get-Instructions{
 			"`r`n" +
 			"`r`nThis utility will not be able to correctly close an application if the Porcess Name is not correct." +
 			"`r`n-----" +
-			"`r`nThe FileSource.config file should be placed in the same folder as the executable file and should only contain" +
+			"`r`nThe FileSource.config file should be placed in the ProgramData/TestCleanupScript folder and should only contain" +
 			"`r`nthe path to the TestCleanupApps.csv file on the network. For example:" +
 			"`r`n" +
 			"`r`n\\School-Server\softwarepush\TestCleanupUtility" +
@@ -44,6 +64,14 @@ Function Get-Instructions{
 
 #Turn on Debug lines
 $DebugOutput = $false
+
+#Output License Disclaimer
+if($DebugOutput){
+	Write-Host "Test Cleanup Script Copyright (C) 2023 Thomas Landry"
+    Write-Host "This program comes with ABSOLUTELY NO WARRANTY;For details visit "
+    Write-Host "This is free software, and you are welcome to redistribute it"
+    Write-Host "under certain conditions; type `show c' for details."
+}
 
 #Set up some variables
 $SourceFileName = "TestCleanupApps.csv"
