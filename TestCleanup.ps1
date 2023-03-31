@@ -259,3 +259,4 @@ foreach ($App in $Apps){
 Remove-Item $LocalSource
 
 if ($DebugOutput) { Read-Host "Press Enter to Exit" }
+Exit 0
