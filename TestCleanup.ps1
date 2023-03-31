@@ -29,8 +29,8 @@ param (
 	[switch]$Suppress = $false,
 	[switch]$License = $false,
 	[switch]$Instructions = $false,
-	[string]$Directory = ""
-	#[switch]$Help = $false,
+	[string]$Directory = "",
+	[switch]$Help = $false
 	#[switch]$? = $false
 )
 
@@ -109,22 +109,21 @@ Function Get-License{
 	Write-Host "Test Cleanup Script" + 
 	"`r`nA configurable solution to shut down applications that would interfere withtesting software." + 
 	"`r`nProject availible at https://github.com/DigitDaemon/Test-Cleanup-Script" +
-	"`r`n#----------------------------------<LICENSE>--------------------------------#" +
-	"`r`n#   Copyright (C) 2023 Thomas Landry                                        #" +
-	"`r`n#                                                                           #" +
-	"`r`n#   This program is free software: you can redistribute it and/or modify    #" +
-	"`r`n#   it under the terms of the GNU General Public License as published by    #" +
-	"`r`n#   the Free Software Foundation, either version 3 of the License, or       #" +
-	"`r`n#   (at your option) any later version.                                     #" +
-	"`r`n#                                                                           #" +
-	"`r`n#   This program is distributed in the hope that it will be useful,         #" +
-	"`r`n#   but WITHOUT ANY WARRANTY; without even the implied warranty of          #" +
-	"`r`n#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #" +
-	"`r`n#   GNU General Public License for more details.                            #" +
-	"`r`n#                                                                           #" +
-	"`r`n#   You should have received a copy of the GNU General Public License       #" +
-	"`r`n#   along with this program.  If not, see <http://www.gnu.org/licenses/>.   #" +
-	"`r`n#---------------------------------------------------------------------------#"
+	"`r`n" +
+	"`r`nCopyright (C) 2023 Thomas Landry" +
+	"`r`n" +
+	"`r`nThis program is free software: you can redistribute it and/or modify" +
+	"`r`nit under the terms of the GNU General Public License as published by" +
+	"`r`nthe Free Software Foundation, either version 3 of the License, or" +
+	"`r`n(at your option) any later version." +
+	"`r`n" +
+	"`r`nThis program is distributed in the hope that it will be useful," +
+	"`r`nbut WITHOUT ANY WARRANTY; without even the implied warranty of" +
+	"`r`nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the" +
+	"`r`nGNU General Public License for more details." +
+	"`r`n" +
+	"`r`nYou should have received a copy of the GNU General Public License" +
+	"`r`nalong with this program.  If not, see <http://www.gnu.org/licenses/>."
 }
 Function Get-Arguments{
 	Write-Host "The availible arguments for this application are:"+
@@ -133,11 +132,10 @@ Function Get-Arguments{
 		"`r`n`"-Lincense`" : Displays the license information."+
 		"`r`n`"-Instructions`" : Generates the Instructions and Example documents."+
 		"`r`n`"-Directory`" : Optionally targets different directory for -Instructions command."+
-		"`r`n`"-Help`" : Not Implemented."+
-		"`r`n`"-?`" : Distplays this screen."
+		"`r`n`"-Help`" : Distplays this screen."
 }
 
-if($?){
+if($Help){
 	Get-Arguments
 	Exit 0
 }
