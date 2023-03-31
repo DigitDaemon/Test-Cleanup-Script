@@ -25,6 +25,10 @@
 #avoid having to update script for new apps.
 
 #Printing the instructions
+param (
+	[switch]$DebugOutput = $false,
+	[switch]$Supress = $false
+)
 Function Get-Instructions{
 	Write-Host "The TestCleanupUtility instruction will be written to the folder that the utility is currently located in."
 	$Instructions = "Test Cleanup Utility" +
@@ -76,9 +80,6 @@ Function Get-Instructions{
 	$ExampleCleanupAppsCSV = "Teams,05/08/1945,The Teams client in windows"
 	Out-File -FilePath .\EXAMPLE_TestCleanupApps.csv -InputObject $ExampleCleanupAppsCSV
 }
-
-#Turn on Debug lines
-$DebugOutput = $false
 
 #Output License Disclaimer
 if($DebugOutput){
@@ -178,7 +179,7 @@ foreach ($App in $Apps){
 	if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
 	$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
 	if ($Target) {
-		Stop-Process -Name $Target.ProcessName -Force
+		if (-not $Supress) {Stop-Process -Name $Target.ProcessName -Force}
 		if ($DebugOutput) { Write-Host "Killed " $Target.ProcessName }
 	}
 }
