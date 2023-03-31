@@ -1,6 +1,6 @@
 #Test Cleanup Script 
 #A configurable solution to shut down applications that would interfere withtesting software. 
-
+#Project availible at https://github.com/DigitDaemon/Test-Cleanup-Script
 #----------------------------------<LICENSE>--------------------------------#
 #   Copyright (C) 2023 Thomas Landry                                        #
 #                                                                           #
@@ -24,13 +24,18 @@
 #Implementation notes: Want to get problem apps from a .csv file outside of script in order to 
 #avoid having to update script for new apps.
 
-#Printing the instructions
 param (
 	[switch]$DebugOutput = $false,
-	[switch]$Supress = $false
+	[switch]$Suppress = $false,
+	[switch]$License = $false,
+	[switch]$Instructions = $false,
+	[string]$Directory = ""
+	#[switch]$Help = $false,
+	#[switch]$? = $false
 )
+
 Function Get-Instructions{
-	Write-Host "The TestCleanupUtility instruction will be written to the folder that the utility is currently located in."
+	Write-Host "The TestCleanupUtility instruction will be written to the folder that the utility is currently located in or the specified Directory."
 	$Instructions = "Test Cleanup Utility" +
 			"`r`nWritten by Thomas Landry for use and distrubution under the GNUv3 License" +
 			"`r`n-----" +
@@ -74,13 +79,81 @@ Function Get-Instructions{
 			"`r`n" +
 			"`r`nDo not include TestCleanupApps.csv in the path." +
 			"`r`n-----"
-	Out-File -FilePath .\Instructions.txt -InputObject $Instructions
-	$ExampleConfig = "\\School-Server\softwarepush\TestCleanupUtility"
-	Out-File -FilePath .\EXAMPLE_FileSource.config -InputObject $ExampleConfig
-	$ExampleCleanupAppsCSV = "Teams,05/08/1945,The Teams client in windows"
-	Out-File -FilePath .\EXAMPLE_TestCleanupApps.csv -InputObject $ExampleCleanupAppsCSV
+	if($Directory -like ""){
+		Out-File -FilePath .\Instructions.txt -InputObject $Instructions
+		$ExampleConfig = "\\School-Server\softwarepush\TestCleanupUtility"
+		Out-File -FilePath .\EXAMPLE_FileSource.config -InputObject $ExampleConfig
+		$ExampleCleanupAppsCSV = "Teams,05/08/1945,The Teams client in windows"
+		Out-File -FilePath .\EXAMPLE_TestCleanupApps.csv -InputObject $ExampleCleanupAppsCSV
+	}
+	else
+	{
+		try{
+			$path = $Directory + "\Instructions.txt"
+			Out-File -FilePath $path -InputObject $Instructions
+			$ExampleConfig = "\\School-Server\softwarepush\TestCleanupUtility"
+			$path = $Directory + "\EXAMPLE_FileSource.config"
+			Out-File -FilePath $path -InputObject $ExampleConfig
+			$ExampleCleanupAppsCSV = "Teams,05/08/1945,The Teams client in windows"
+			$path = $Directory + "\EXAMPLE_TestCleanupApps.csv"
+			Out-File -FilePath $path -InputObject $ExampleCleanupAppsCSV
+		}
+		catch [System.IO.IOException] {
+			$message = "The -Directory input `"" + $Directory + "`" is not valid." 
+			Write-Host $message
+			Write-Host $_
+		}
+	}
+}
+Function Get-License{
+	Write-Host "Test Cleanup Script" + 
+	"`r`nA configurable solution to shut down applications that would interfere withtesting software." + 
+	"`r`nProject availible at https://github.com/DigitDaemon/Test-Cleanup-Script" +
+	"`r`n#----------------------------------<LICENSE>--------------------------------#" +
+	"`r`n#   Copyright (C) 2023 Thomas Landry                                        #" +
+	"`r`n#                                                                           #" +
+	"`r`n#   This program is free software: you can redistribute it and/or modify    #" +
+	"`r`n#   it under the terms of the GNU General Public License as published by    #" +
+	"`r`n#   the Free Software Foundation, either version 3 of the License, or       #" +
+	"`r`n#   (at your option) any later version.                                     #" +
+	"`r`n#                                                                           #" +
+	"`r`n#   This program is distributed in the hope that it will be useful,         #" +
+	"`r`n#   but WITHOUT ANY WARRANTY; without even the implied warranty of          #" +
+	"`r`n#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #" +
+	"`r`n#   GNU General Public License for more details.                            #" +
+	"`r`n#                                                                           #" +
+	"`r`n#   You should have received a copy of the GNU General Public License       #" +
+	"`r`n#   along with this program.  If not, see <http://www.gnu.org/licenses/>.   #" +
+	"`r`n#---------------------------------------------------------------------------#"
+}
+Function Get-Arguments{
+	Write-Host "The availible arguments for this application are:"+
+		"`r`n`"-DebugOutput`" : Shows the debug text in the console."+
+		"`r`n`"-Suppress`" : Stops this app from closing other apps when run."+
+		"`r`n`"-Lincense`" : Displays the license information."+
+		"`r`n`"-Instructions`" : Generates the Instructions and Example documents."+
+		"`r`n`"-Directory`" : Optionally targets different directory for -Instructions command."+
+		"`r`n`"-Help`" : Not Implemented."+
+		"`r`n`"-?`" : Distplays this screen."
 }
 
+if($?){
+	Get-Arguments
+	Exit 0
+}
+
+if($Instructions)
+{
+	Get-Instructions
+	Exit 0
+}
+
+if($License)
+{
+	Get-License
+	Read-Host "Press enter to exit"
+	Exit 0
+}
 #Output License Disclaimer
 if($DebugOutput){
 	Write-Host "Test Cleanup Script Copyright (C) 2023 Thomas Landry"
@@ -179,7 +252,7 @@ foreach ($App in $Apps){
 	if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
 	$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
 	if ($Target) {
-		if (-not $Supress) {Stop-Process -Name $Target.ProcessName -Force}
+		if (-not $Suppress) {Stop-Process -Name $Target.ProcessName -Force}
 		if ($DebugOutput) { Write-Host "Killed " $Target.ProcessName }
 	}
 }
