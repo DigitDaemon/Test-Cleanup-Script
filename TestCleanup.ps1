@@ -30,7 +30,8 @@ param (
 	[switch]$License = $false,
 	[switch]$Instructions = $false,
 	[string]$Directory = "",
-	[switch]$Help = $false
+	[switch]$Help = $false,
+	[string]$Launch = ""
 	#[switch]$? = $false
 )
 
@@ -255,6 +256,17 @@ foreach ($App in $Apps){
 	}
 }
 Remove-Item $LocalSource
+
+if ( -not ($Launch -like "")){
+	try{
+		Start-Process -FilePath $Launch
+	}
+	catch{
+		Write-Host "There was an issue launching `""$Launch"`". Please check the file path or contact your IT admin for more help."
+		Write-Host $message
+		Write-Host $_
+	}
+}
 
 if ($DebugOutput) { Read-Host "Press Enter to Exit" }
 Exit 0
