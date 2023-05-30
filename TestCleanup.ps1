@@ -165,6 +165,7 @@ if($DebugOutput){
 $SourceFileName = "TestCleanupApps.csv"
 $ConfigFileName = "FileSource.config"
 $DataPath = "C:\ProgramData\TestCleanupScript"
+$LocalSource = $DataPath + "\" + $SourceFileName
 
 #check for config file
 $ConfigFilePath = $DataPath + "\" + $ConfigFileName
@@ -176,9 +177,8 @@ if ($DebugOutput)
 
 $ConfigPresent = Test-Path -Path $ConfigFilePath
 if (!$ConfigPresent){
-	$ValidChoice = $false
-	Do
-	{	
+	$ValidChoice = $true
+	while($ValidChoice = $false){	
 		$ConfigChoice = Read-Host "Configuration file not present, would you like to output the utility instructions? Yes [Y] or No [N]"
 		$ConfigChoice = $ConfigChoice.ToLower()
 		if ($ConfigChoice[0] -Match "[y]"){
@@ -191,82 +191,91 @@ if (!$ConfigPresent){
 		else{
 			$ValidChoice = $true
 		}
-	}while($ValidChoice = $false)
-	Read-Host "Press enter to exit"
-	Exit 3
+	}
+	#Read-Host "Press enter to exit"
+	#Exit 3
 }
+else{
+	
 
 #build path to the source file
-$FileSource = Get-Content $ConfigFilePath
+	$FileSource = Get-Content $ConfigFilePath
 
-if ($DebugOutput) { Write-Host $FileSource }
-$FullSourceFilePath = $FileSource + "\" + $SourceFileName
+	if ($DebugOutput) { Write-Host $FileSource }
+	$FullSourceFilePath = $FileSource + "\" + $SourceFileName
 
-if ($DebugOutput)
-{
-	Write-Host $FullSourceFilePath
-	Read-Host "Press enter to continue"
-}
+	if ($DebugOutput)
+	{
+		Write-Host $FullSourceFilePath
+		Read-Host "Press enter to continue"
+	}
 
 #check for source file
-$SourcePresent = Test-Path $FullSourceFilePath
-if (!$SourcePresent){
-	$ValidChoice = $false
-	Do
-	{	
-		$SourceChoice = Read-Host "Source File not present, would you like to output the utility instructions? Yes [Y] or No [N]"
-		$SourceChoice = $SourceChoice.ToLower()
-		if ($SourceChoice[0] -Match "[y]"){
-			Get-Instructions
-			$ValidChoice = $true
+	$SourcePresent = Test-Path $FullSourceFilePath
+	if (!$SourcePresent){
+		$ValidChoice = $true
+		while($ValidChoice = $false){	
+			$SourceChoice = Read-Host "Source File not present, would you like to output the utility instructions? Yes [Y] or No [N]"
+			$SourceChoice = $SourceChoice.ToLower()
+			if ($SourceChoice[0] -Match "[y]"){
+				Get-Instructions
+				$ValidChoice = $true
+			}
+			elseif(!$SourceChoice[0] -Match "[n]"){
+				Write-Host "Not a valid input"
+			}
+			else{
+				$ValidChoice = $true
+			}
 		}
-		elseif(!$SourceChoice[0] -Match "[n]"){
-			Write-Host "Not a valid input"
-		}
-		else{
-			$ValidChoice = $true
-		}
-	}while($ValidChoice = $false)
-	Read-Host "Press enter to exit"
-	Exit 3
-}
+		#Read-Host "Press enter to exit"
+		#Exit 3
+	}
+	else{
 
 #Get the source csv file onto the computer
-Copy-Item $FullSourceFilePath -Destination $DataPath
+		Remove-Item $LocalSource
+		Copy-Item $FullSourceFilePath -Destination $DataPath
+	}
 #Read-Host "Press Enter to Continue"
-
-#Read the source file into the script
-$LocalSource = $DataPath + "\" + $SourceFileName
-
-if ($DebugOutput)
-{
-	Write-Host "LocalSource: " $LocalSource
-	Read-Host "Press Enter to Continue"
 }
+#Read the source file into the script
 
-$Apps = Import-Csv -Path $LocalSource -Header 'ProcessName', 'DateAdded', 'Description' 
+$LocalSourcePresent = Test-Path -Path  $LocalSource
+if ($LocalSourcePresent) {
+		if ($DebugOutput)
+	{
+		Write-Host "LocalSource: " $LocalSource
+		Read-Host "Press Enter to Continue"
+	}
+
+	$Apps = Import-Csv -Path $LocalSource -Header 'ProcessName', 'DateAdded', 'Description' 
 
 #Time to kill...processes
-foreach ($App in $Apps){
-	if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
-	$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
-	if ($Target) {
-		if (-not $Suppress) {Stop-Process -Name $Target.ProcessName -Force}
-		if ($DebugOutput) { Write-Host "Killed " $Target.ProcessName }
+	foreach ($App in $Apps){
+		if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
+		$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
+		if ($Target) {
+			if (-not $Suppress) {Stop-Process -Name $Target.ProcessName -Force}
+			if ($DebugOutput) { Write-Host "Killed " $Target.ProcessName }
+		}
 	}
-}
-Remove-Item $LocalSource
+	
+	if ( -not ($Launch -like "")){
+		try{
+			Start-Process -FilePath $Launch
+		}
+		catch{
+			Write-Host "There was an issue launching `""$Launch"`". Please check the file path or contact your IT admin for more help."
+			Write-Host $message
+			Write-Host $_
+		}
+	}
 
-if ( -not ($Launch -like "")){
-	try{
-		Start-Process -FilePath $Launch
-	}
-	catch{
-		Write-Host "There was an issue launching `""$Launch"`". Please check the file path or contact your IT admin for more help."
-		Write-Host $message
-		Write-Host $_
-	}
+	if ($DebugOutput) { Read-Host "Press Enter to Exit" }
+	Exit 0
 }
-
-if ($DebugOutput) { Read-Host "Press Enter to Exit" }
-Exit 0
+else{
+	Write-Host "Failed to load source file from local machine. Check that `"C:\ProgramData\TestCleanupScript`" is accessable and that the file `"TestCleanupApps.csv`" is present"
+	Write-Host "If `"TestCleanupApps.csv`" is not present, user may not have access to the location of the master copy of the `"TestCleanupApps.csv`" file, or the `"FileSource.config`" file may have the wrong location."
+}
