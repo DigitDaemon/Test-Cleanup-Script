@@ -141,14 +141,12 @@ if($Help){
 	Exit 0
 }
 
-if($Instructions)
-{
+if($Instructions){
 	Get-Instructions
 	Exit 0
 }
 
-if($License)
-{
+if($License){
 	Get-License
 	Read-Host "Press enter to exit"
 	Exit 0
@@ -212,30 +210,15 @@ else{
 
 #check for source file
 	$SourcePresent = Test-Path $FullSourceFilePath
-	if (!$SourcePresent){
-		$ValidChoice = $true
-		while($ValidChoice = $false){	
-			$SourceChoice = Read-Host "Source File not present, would you like to output the utility instructions? Yes [Y] or No [N]"
-			$SourceChoice = $SourceChoice.ToLower()
-			if ($SourceChoice[0] -Match "[y]"){
-				Get-Instructions
-				$ValidChoice = $true
-			}
-			elseif(!$SourceChoice[0] -Match "[n]"){
-				Write-Host "Not a valid input"
-			}
-			else{
-				$ValidChoice = $true
-			}
-		}
-		#Read-Host "Press enter to exit"
-		#Exit 3
+	if ($SourcePresent){
+		$LocalSourcePresent = Test-Path -Path  $LocalSource
+		if ($LocalSourcePresent) {Remove-Item $LocalSource}
+		Copy-Item $FullSourceFilePath -Destination $DataPath
 	}
 	else{
-
-#Get the source csv file onto the computer
-		Remove-Item $LocalSource
-		Copy-Item $FullSourceFilePath -Destination $DataPath
+		if ($DebugOutput){
+			Write-Host "Unable to connect to network source file, fall back to local cached application list"
+		}
 	}
 #Read-Host "Press Enter to Continue"
 }
@@ -251,7 +234,7 @@ if ($LocalSourcePresent) {
 
 	$Apps = Import-Csv -Path $LocalSource -Header 'ProcessName', 'DateAdded', 'Description' 
 
-#Time to kill...processes
+#Time to kill processes
 	foreach ($App in $Apps){
 		if ($DebugOutput) { Write-Host "App ProcessName: " $App.ProcessName }
 		$Target = Get-Process -Name $App.ProcessName -ErrorAction SilentlyContinue
