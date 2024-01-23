@@ -245,13 +245,16 @@ if ($LocalSourcePresent) {
 	}
 	
 	if ( -not ($Launch -like "")){
-		try{
-			Start-Process -FilePath $Launch
-		}
-		catch{
-			Write-Host "There was an issue launching `""$Launch"`". Please check the file path or contact your IT admin for more help."
-			Write-Host $message
-			Write-Host $_
+		$LaunchPath = Test-Path $Launch
+		if($LaunchPath){
+			try{
+				Start-Process -FilePath $Launch
+			}
+			catch{
+				Write-Host "There was an issue launching `""$Launch"`". Please check the file path or contact your IT admin for more help."
+				Write-Host $message
+				Write-Host $_
+			}
 		}
 	}
 
