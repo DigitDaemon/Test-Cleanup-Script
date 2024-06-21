@@ -162,7 +162,7 @@ if($DebugOutput){
 #Set up some variables
 $SourceFileName = "TestCleanupApps.csv"
 $ConfigFileName = "FileSource.config"
-$DataPath = "C:\ProgramData\TestCleanupScript"
+$DataPath = "$env:LOCALAPPDATA\TestCleanupScript"
 $LocalSource = $DataPath + "\" + $SourceFileName
 
 #check for config file
